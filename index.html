@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>LED-Previewer</title>
+		<style>
+			@font-face { font-family: "JetBrains Mono"; src: url("font/JBMono.ttf") }
+
+			* {
+				box-sizing: border-box;
+				font-family: "JetBrains Mono", monospace;
+				font-size: 13px;
+			}
+
+			input {
+				border-radius: 0;
+				outline: none;
+				border: 0;
+				width: 3.3ex;
+				padding: 0;
+				margin: 0;
+
+				-moz-appearance: textfield;
+			}
+
+			input::-webkit-inner-spin-button,
+			input::-webkit-outer-spin-button {
+				-webkit-appearance: none;
+				margin: 0;
+			}
+
+			span {
+				color: #888;
+			}
+
+			textarea::placeholder {
+				color: #888;
+			}
+
+			#strip {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
+				margin-bottom: 10px;
+			}
+			#strip>span {
+				--color: transparent;
+
+				flex-shrink: 1;
+
+				display: block;
+
+				width: 20px;
+				height: 20px;
+
+				background-color: #111;
+				outline-offset: -1px;
+				position: relative;
+			}
+			#strip>span::before {
+				content: "";
+				display: block;
+				position: absolute;
+				width: 8px;
+				height: 8px;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background-color: #ddd;
+			}
+			#strip>span::after {
+				content: "";
+				display: block;
+				position: absolute;
+				width: 8px;
+				height: 8px;
+				border-radius: 4px;
+				top: 50%;
+				left: 50%;
+				background-color: var(--color);
+				box-shadow: 0 0 14px 5px var(--color);
+				transform: translate(-50%, -50%);
+			}
+
+
+			textarea {
+				display: block;
+				resize: none;
+				width: 100%;
+				height: 100%;
+				outline: none;
+				overflow-x: auto;
+				border: 0;
+				padding: 0 0 0 4ex;
+				white-space: pre;
+			}
+
+			textarea::-webkit-scrollbar {
+				display: none;
+			}
+
+			label[for="code"] {
+				position: relative;
+			}
+
+			body {
+				overflow-x: hidden;
+			}
+
+			button {
+				background: none;
+				outline: 1px solid black;
+				border: none;
+				margin-top: 10px;
+			}
+
+			#textarea-sizer {
+				display: block;
+				position: absolute;
+				top: 0;
+				left: 4ex;
+				white-space: pre;
+				overflow-x: hidden;
+				color: transparent;
+				z-index: -1;
+			}
+			#textarea-sizer::after {
+				content: "-";
+				display: inline-block;
+				width: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="strip"></div>
+		<div id="input">
+			<label id="num-leds-container">
+				<span>ledStrip.setLength(</span><input type="number" min="1" max="256" value="32" id="num-leds"><span>);</span>
+			</label>
+			<div id="code-input-container">
+				<span>ledStrip.usePattern((ledIdx, time) => {</span>
+				<label for="code">
+					<textarea id="code" spellcheck="false" placeholder="//Enter code here"></textarea>
+					<span id="textarea-sizer"></span>
+				</label>
+				<span>});</span><br>
+				<span>// Hopefully your (and my) code translates well to Java</span><br>
+			</div>
+			<button id="run-code-button">Run code</button>
+		</div>
+		<script>
+			class Color {
+				constructor(r, g, b) {
+					this.r = r;
+					this.g = g;
+					this.b = b;
+				}
+
+
+
+				toCSS() {
+					const r0 = this.r / 255, g0 = this.g / 255, b0 = this.b / 255;
+					const r = 1 - 50 ** (-r0),
+						  g = 1 - 50 ** (-g0),
+						  b = 1 - 50 ** (-b0);
+
+					let h, s, v;
+					{
+						const max = Math.max(r, g, b), min = Math.min(r, g, b);
+						let d = max - min;
+						s = max === 0 ? 0 : d / max;
+						v = max;
+
+						if (max === min) {
+							h = 0;
+						} else {
+							switch (max) {
+								case r:
+									h = (g - b) / d + (g < b ? 6 : 0);
+									break;
+								case g:
+									h = (b - r) / d + 2;
+									break;
+								case b:
+									h = (r - g) / d + 4;
+									break;
+							}
+							h /= 6;
+						}
+					}
+
+					return `hsla(${h*360}deg, ${s * 100}%, 50%, ${v})`;
+				}
+
+				static fromHSV(h, s, v) {
+					const chroma = ~~((s * v) / 255);
+					const region = ~~(h / 30) % 6;
+					const remainder = ~~Math.round((h % 30) * (255 / 30));
+					const m = v - chroma;
+					const X = (chroma * remainder) >> 8;
+					switch (region) {
+						case 0:
+							return new Color(v, X + m, m);
+						case 1:
+							return new Color(v - X, v, m);
+						case 2:
+							return new Color(m, v, X + m);
+						case 3:
+							return new Color(m, v - X, v);
+						case 4:
+							return new Color(X + m, m, v);
+						default:
+							return new Color(v, m, v - X);
+					}
+				}
+			}
+
+			const leds = document.getElementById('strip');
+			const ledsInput = document.getElementById('num-leds');
+			ledsInput.onchange = (f => (f(), f))(regenerateLEDs);
+
+			function regenerateLEDs() {
+				const num = Math.max(Math.min(~~ledsInput.value, 256), 1);
+				ledsInput.value = num;
+
+				while(leds.firstChild) leds.firstChild.remove();
+				for(let i = 0; i < num; i++) {
+					leds.appendChild(document.createElement('span'));
+				}
+			}
+
+			const runCodeBtn = document.getElementById('run-code-button');
+			const codeInput = document.getElementById('code');
+
+			/** @type {(ledIdx: number, time: number) => Color} */
+			let currCode = new Function("ledIdx", "time", "return new Color(0, 0, 0)");
+			runCodeBtn.onclick = updateCode;
+			codeInput.oninput = codeInput.onchange = codeInput.onkeydown = codeInput.onkeyup
+				= (f => (f(), f))(e => {
+				if(e?.key === 'Enter' && e?.ctrlKey) updateCode();
+
+				codeInput.nextElementSibling.textContent = codeInput.value;
+				codeInput.style.setProperty('height', `${codeInput.nextElementSibling.clientHeight}px`);
+			})
+			function updateCode() {
+				try {
+					const newFunc = new Function("ledIdx", "time", codeInput.value);
+					if(!(newFunc(0, 0) instanceof Color)) {
+						throw new Error(
+							'Code does not return a Color. Use new Color(r, g, b) to ' +
+							'construct a new Color, or use Color.fromHSV(h, s, v), ' +
+							'where r, g, b, s, v are in the range [0, 255] and h is' +
+							'in the range [0, 180).'
+						);
+					}
+					currCode = newFunc;
+				}
+				catch(e) {
+					alert(e.message);
+				}
+			}
+
+			requestAnimationFrame(function frame(t) {
+				const time = t / 1000;
+				let currLedIdx = 0;
+				for(const led of leds.children) {
+					led.style.setProperty('--color', currCode(currLedIdx++, time).toCSS());
+				}
+				requestAnimationFrame(frame);
+			})
+		</script>
+	</body>
+</html>
