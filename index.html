@@ -152,7 +152,11 @@
 			<div id="code-input-container">
 				<span>ledStrip.usePattern((ledIdx, time) => {</span>
 				<label for="code">
-					<textarea id="code" spellcheck="false" placeholder="//Enter code here">return new Color(255, 50, 0);</textarea>
+					<textarea id="code" spellcheck="false" placeholder="//Enter code here">return new Color(
+    255 - ledIdx * 10, 
+    100 * Math.sin(time) ** 2 + 50, 
+    0
+);</textarea>
 					<span id="textarea-sizer"></span>
 				</label>
 				<span>});</span><br><br>
