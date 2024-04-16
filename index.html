@@ -31,6 +31,7 @@
 
 			span {
 				color: #888;
+				white-space: pre;
 			}
 
 			textarea::placeholder {
@@ -134,27 +135,27 @@
 	<body>
 		<div id="strip"></div>
 		<div id="input">
+			<span>class Color { </span> <br>
+			<span>    /** r, g, and b should be numbers in the range [0, 255] */ </span> <br>
+			<span>    constructor(r, g, b) {...} </span> <br>
+			<br>
+			<span>    /** </span> <br>
+			<span>     * h should be a number in the range [0, 180), and s and </span> <br>
+			<span>     * v should be numbers in the range [0, 255]. Returns a </span> <br>
+			<span>     * Color. </span> <br>
+			<span>     */ </span> <br>
+			<span>    static fromHSV(h, s, b) {...} </span> <br>
+			<span>}</span><br><br>
 			<label id="num-leds-container">
 				<span>ledStrip.setLength(</span><input type="number" min="1" max="256" value="32" id="num-leds"><span>);</span>
-			</label>
+			</label><br>
 			<div id="code-input-container">
-				<span>class Color { </span> <br>
-				<span>    /** r, g, and b should be numbers in the range [0, 255] */ </span> <br>
-				<span>    constructor(r, g, b) {...} </span> <br>
-				<br>
-				<span>    /** </span> <br>
-				<span>     * h should be a number in the range [0, 180), and s and </span> <br>
-				<span>     * v should be numbers in the range [0, 255]. Returns a </span> <br>
-				<span>     * Color. </span> <br>
-				<span>     */ </span> <br>
-				<span>    static fromHSV(h, s, b) {...} </span> <br>
-					
 				<span>ledStrip.usePattern((ledIdx, time) => {</span>
 				<label for="code">
 					<textarea id="code" spellcheck="false" placeholder="//Enter code here"></textarea>
 					<span id="textarea-sizer"></span>
 				</label>
-				<span>});</span><br>
+				<span>});</span><br><br>
 				<span>/* Write a function to color each LED given </span> <br>
 				<span> * the position of the LED (ledIdx) and the </span> <br>
 				<span> * time in seconds (time). If you find any </span> <br>
