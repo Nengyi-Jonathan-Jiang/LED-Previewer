@@ -4,21 +4,24 @@
 		<meta charset="UTF-8">
 		<title>LED-Previewer</title>
 		<style>
-			@font-face { font-family: "JetBrains Mono"; src: url("font/JBMono.ttf") }
+			@font-face {
+				font-family: "JetBrains Mono";
+				src:         url("font/JBMono.ttf")
+			}
 
 			* {
-				box-sizing: border-box;
+				box-sizing:  border-box;
 				font-family: "JetBrains Mono", monospace;
-				font-size: 13px;
+				font-size:   13px;
 			}
 
 			input {
-				border-radius: 0;
-				outline: none;
-				border: 0;
-				width: 3.3ex;
-				padding: 0;
-				margin: 0;
+				border-radius:   0;
+				outline:         none;
+				border:          0;
+				width:           3.3ex;
+				padding:         0;
+				margin:          0;
 
 				-moz-appearance: textfield;
 			}
@@ -26,11 +29,11 @@
 			input::-webkit-inner-spin-button,
 			input::-webkit-outer-spin-button {
 				-webkit-appearance: none;
-				margin: 0;
+				margin:             0;
 			}
 
 			span {
-				color: #888;
+				color:       #888;
 				white-space: pre;
 			}
 
@@ -39,60 +42,63 @@
 			}
 
 			#strip {
-				width: 100%;
-				display: flex;
+				width:          100%;
+				display:        flex;
 				flex-direction: row;
-				margin-bottom: 10px;
+				margin-bottom:  10px;
 			}
-			#strip>span {
-				--color: transparent;
 
-				flex-shrink: 1;
+			#strip > span {
+				--color:          transparent;
 
-				display: block;
+				flex-shrink:      1;
 
-				width: 20px;
-				height: 20px;
+				display:          block;
+
+				width:            20px;
+				height:           20px;
 
 				background-color: #111;
-				outline-offset: -1px;
-				position: relative;
+				outline-offset:   -1px;
+				position:         relative;
 			}
-			#strip>span::before {
-				content: "";
-				display: block;
-				position: absolute;
-				width: 8px;
-				height: 8px;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
+
+			#strip > span::before {
+				content:          "";
+				display:          block;
+				position:         absolute;
+				width:            8px;
+				height:           8px;
+				top:              50%;
+				left:             50%;
+				transform:        translate(-50%, -50%);
 				background-color: #ddd;
 			}
-			#strip>span::after {
-				content: "";
-				display: block;
-				position: absolute;
-				width: 8px;
-				height: 8px;
-				border-radius: 4px;
-				top: 50%;
-				left: 50%;
+
+			#strip > span::after {
+				content:          "";
+				display:          block;
+				position:         absolute;
+				width:            8px;
+				height:           8px;
+				border-radius:    4px;
+				top:              50%;
+				left:             50%;
 				background-color: var(--color);
-				box-shadow: 0 0 14px 5px var(--color);
-				transform: translate(-50%, -50%);
+				box-shadow:       0 0 14px 5px var(--color);
+				transform:        translate(-50%, -50%);
 			}
 
 
 			textarea {
-				display: block;
-				resize: none;
-				width: 100%;
-				height: 100%;
-				outline: none;
-				overflow-x: auto;
-				border: 0;
-				padding: 0 0 0 4ex;
+				display:     block;
+				resize:      none;
+				width:       100%;
+				height:      100%;
+				outline:     none;
+				overflow-x:  auto;
+				border:      0;
+				padding:     0 0 0 4ex;
 				white-space: pre;
 			}
 
@@ -110,25 +116,26 @@
 
 			button {
 				background: none;
-				outline: 1px solid black;
-				border: none;
+				outline:    1px solid black;
+				border:     none;
 				margin-top: 10px;
 			}
 
 			#textarea-sizer {
-				display: block;
-				position: absolute;
-				top: 0;
-				left: 4ex;
+				display:     block;
+				position:    absolute;
+				top:         0;
+				left:        4ex;
 				white-space: pre;
-				overflow-x: hidden;
-				color: transparent;
-				z-index: -1;
+				overflow-x:  hidden;
+				color:       transparent;
+				z-index:     -1;
 			}
+
 			#textarea-sizer::after {
 				content: "-";
 				display: inline-block;
-				width: 0;
+				width:   0;
 			}
 		</style>
 	</head>
@@ -136,38 +143,47 @@
 		<div id="strip"></div>
 		<div id="input">
 			<span>class Color { </span> <br>
-			<span>    /** r, g, and b should be numbers in the range [0, 255] */ </span> <br>
-			<span>    constructor(r, g, b) {...} </span> <br>
+			<span>    /** r, g, and b should be numbers in the range [0, 1] */ </span> <br>
+			<span>    public Color(double r, double g, double b); </span> <br>
 			<br>
 			<span>    /** </span> <br>
 			<span>     * h should be a number in the range [0, 180), and s and </span> <br>
-			<span>     * v should be numbers in the range [0, 255]. Returns a </span> <br>
+			<span>     * v should be numbers in the range [0, 1]. Returns a</span> <br>
 			<span>     * Color. </span> <br>
 			<span>     */ </span> <br>
-			<span>    static fromHSV(h, s, v) {...} </span> <br>
+			<span>    public static Color fromHSV(double h, double s, double v); </span> <br>
 			<span>}</span><br><br>
 			<label id="num-leds-container">
-				<span>ledStrip.setLength(</span><input type="number" min="1" max="256" value="32" id="num-leds"><span>);</span>
+				<span>ledStrip.setLength(</span><input type="number" min="1" max="256" value="32"
+													   id="num-leds"><span>);</span>
 			</label><br>
 			<div id="code-input-container">
-				<span>ledStrip.usePattern((ledIdx, time) => {</span>
+				<span>ledStrip.usePattern((ledIdx, time) -> {</span>
 				<label for="code">
-					<textarea id="code" spellcheck="false" placeholder="//Enter code here">return new Color(
-    255 - ledIdx * 10, 
-    100 * Math.sin(time) ** 2 + 50, 
-    0
-);</textarea>
-					<span id="textarea-sizer"></span>
+					<textarea id="code" spellcheck="false" placeholder="//Enter code here">int lengthOfFirstSegment = 20;
+int lengthOfSecondSegment = 20;
+int lengthOfDeadZone = 20;
+double speed = 1;
+
+Color WSC = new Color(1, .8, .1),
+      WC = new Color(0, .45, .55),
+      CC = new Color(0, .55, .45),
+      BC = new Color(0, 0, 1); //warm white(if needed): 255, 200, 150
+
+double x = ledIdx;
+double foamPos = 4 - 30 * Math.log(Math.abs(Math.sin(time)));
+double shallowEdge = Math.min(10, foamPos);
+double deepEdge = 20 + (shallowEdge - 10) / 2;
+if(x - foamPos <= 2 && x - foamPos > 0) {
+    return new Color(1, 1, 1);
+}
+
+if(x <= shallowEdge) return WSC;
+if(x <= deepEdge) return CC;
+return BC;</textarea>
+					<span id="textarea-sizer" style="user-select: none"></span>
 				</label>
 				<span>});</span><br><br>
-				<span>/* </span> <br>
-				<span> * Write a function to color each LED given </span> <br>
-				<span> * the position of the LED (ledIdx) and the </span> <br>
-				<span> * time in seconds (time). If you find any </span> <br>
-				<span> * really cool patterns, please tell me so </span> <br>
-				<span> * I can uhh take inspiration from them for </span> <br>
-				<span> * my own use :) </span> <br>
-				<span> */ </span>
 			</div>
 			<button id="run-code-button">Run code</button>
 		</div>
@@ -179,48 +195,50 @@
 					this.b = b;
 				}
 
-
-
 				toCSS() {
-					const r0 = this.r / 255, g0 = this.g / 255, b0 = this.b / 255;
+					const r0 = this.r, g0 = this.g, b0 = this.b;
 					const r = 1 - 50 ** (-r0),
-						  g = 1 - 50 ** (-g0),
-						  b = 1 - 50 ** (-b0);
+						g = 1 - 50 ** (-g0),
+						b = 1 - 50 ** (-b0);
 
-					let h, s, v;
+					let h, sv, sl, v, l;
 					{
 						const max = Math.max(r, g, b), min = Math.min(r, g, b);
-						let d = max - min;
-						s = max === 0 ? 0 : d / max;
+						const c = max - min;
 						v = max;
+						l = v - c / 2;
+
+						sl = c / (1 - Math.abs(2 * v - c - 1));
+						sv = max === 0 ? 0 : c / max;
 
 						if (max === min) {
 							h = 0;
 						} else {
 							switch (max) {
 								case r:
-									h = (g - b) / d + (g < b ? 6 : 0);
+									h = (g - b) / c + (g < b ? 6 : 0);
 									break;
 								case g:
-									h = (b - r) / d + 2;
+									h = (b - r) / c + 2;
 									break;
 								case b:
-									h = (r - g) / d + 4;
+									h = (r - g) / c + 4;
 									break;
 							}
 							h /= 6;
 						}
 					}
 
-					return `hsla(${h*360}deg, ${s * 100}%, 50%, ${v})`;
+					return `hsla(${ h * 360 }deg, ${ sl * 100 }%, ${l * 100}%, ${v})`;
 				}
 
 				static fromHSV(h, s, v) {
-					const chroma = ~~((s * v) / 255);
-					const region = ~~(h / 30) % 6;
-					const remainder = ~~Math.round((h % 30) * (255 / 30));
+					// h: [0, 180); s, v: [0, 255]
+					const chroma = s * v;
+					const region = ~~(h / 30) % 6; // region being ints in 0 - 5
+					const remainder = (h % 30) / 30;
 					const m = v - chroma;
-					const X = (chroma * remainder) >> 8;
+					const X = chroma * remainder;
 					switch (region) {
 						case 0:
 							return new Color(v, X + m, m);
@@ -232,7 +250,7 @@
 							return new Color(m, v - X, v);
 						case 4:
 							return new Color(X + m, m, v);
-						default:
+						case 5:
 							return new Color(v, m, v - X);
 					}
 				}
@@ -246,8 +264,8 @@
 				const num = Math.max(Math.min(~~ledsInput.value, 256), 1);
 				ledsInput.value = num;
 
-				while(leds.firstChild) leds.firstChild.remove();
-				for(let i = 0; i < num; i++) {
+				while (leds.firstChild) leds.firstChild.remove();
+				for (let i = 0; i < num; i++) {
 					leds.appendChild(document.createElement('span'));
 				}
 			}
@@ -260,25 +278,34 @@
 			runCodeBtn.onclick = updateCode;
 			codeInput.oninput = codeInput.onchange = codeInput.onkeydown = codeInput.onkeyup
 				= (f => (f(), f))(e => {
-				if(e?.key === 'Enter' && e?.ctrlKey) updateCode();
+				if (e?.key === 'Enter' && e?.ctrlKey) updateCode();
 
 				codeInput.nextElementSibling.textContent = codeInput.value;
-				codeInput.style.setProperty('height', `${codeInput.nextElementSibling.clientHeight}px`);
+				codeInput.style.setProperty('height', `${ codeInput.nextElementSibling.clientHeight }px`);
 			})
+
 			function updateCode() {
 				try {
-					const newFunc = new Function("ledIdx", "time", codeInput.value);
-					if(!(newFunc(0, 0) instanceof Color)) {
+					let rawInput = codeInput.value;
+					// Replace cast
+					rawInput = rawInput.replaceAll(/\((int|double)\)/g, "~~");
+					// Replace type declaration
+					rawInput = rawInput.replaceAll(/(?:int|double|Color)(?:\[])?(?=\s*\w)/g, "let");
+					// Replace array initialization
+					rawInput = rawInput.replaceAll(/=\s*\{([^}]*)}/g, "= [$1]")
+
+					const newFunc = new Function("ledIdx", "time", rawInput);
+
+					if (!(newFunc(0, 0) instanceof Color)) {
 						throw new Error(
 							'Code does not return a Color. Use new Color(r, g, b) to ' +
 							'construct a new Color, or use Color.fromHSV(h, s, v), ' +
-							'where r, g, b, s, v are in the range [0, 255] and h is ' +
+							'where r, g, b, s, v are in the range [0, 1] and h is ' +
 							'in the range [0, 180).'
 						);
 					}
 					currCode = newFunc;
-				}
-				catch(e) {
+				} catch (e) {
 					alert(e.message);
 				}
 			}
@@ -286,7 +313,7 @@
 			requestAnimationFrame(function frame(t) {
 				const time = t / 1000;
 				let currLedIdx = 0;
-				for(const led of leds.children) {
+				for (const led of leds.children) {
 					led.style.setProperty('--color', currCode(currLedIdx++, time).toCSS());
 				}
 				requestAnimationFrame(frame);
